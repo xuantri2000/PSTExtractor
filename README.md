@@ -1,92 +1,39 @@
-# PST-Parser
+# PST Extractor
 
-This is a parser for Outlook PST files written from scratch in pure JavaScript.
+## Môi trường
 
-## Usage
+1. Tải và cài đặt Node.js tại [Node.js Official Website](https://nodejs.org/en).
+- Sau khi cài đặt xong, chạy cmd để kiểm tra version và biến môi trường node có chưa:
+     ```bash
+   node -v
+   npm -v
+- Nếu chưa có git thì tải tại [Git Offical Website](https://git-scm.com/downloads).
+2. Clone source về máy bằng lệnh:
+   ```bash
+   git clone https://github.com/xuantri2000/PSTExtractor
 
-### CLI
+## Chạy file JS
+0. Log sẽ được tạo ra trong thư mục /main.
+1. Copy toàn bộ file PST vào thư mục PSTFolder. Toàn bộ output sẽ được lưu vào thư mục PSTOutput.
+2. Mở Command Prompt (CMD) và chạy lệnh: 
 
-Mess around with `test.js` to get a basic sanity check of the lib/PST file.
+   ```bash
+   node main.js
 
-    > git clone https://github.com/IJMacD/pst-parser.git
-    > cd pst-parser
-    > node ./test.js ../path/to/file.pst
+- Nếu chỉ cần test 1 hoặc 2 file .pst (trong trường hợp file bị lỗi), copy chúng vào một thư mục cùng cấp và chạy lệnh:
 
-### Module
+   ```bash
+   node main.js <tên_thư_mục_vừa_tạo>
 
-    > yarn add pst-parser
+- Ví dụ, khi cần test file abc.pst, tạo một thư mục tên test và copy file đó vào, sau đó chạy lệnh:
 
-Use as a module in whatever JS module system you like (assuming it's somewhat modern).
+   ```bash
+   node main.js test
 
-The `PSTFile` constructor takes an `ArrayBuffer`.
+3. Trước khi chạy, toàn bộ log từ lần chạy trước đó trong PSTOutput sẽ bị truncate để tạo log mới. Trong PSTOutput có:
+- File ghi lại toàn bộ nội dung của tệp PST.
+- Folder MailContents chứa nội dung của toàn bộ email đã gửi và nhận, thư rác, thư nháp,...
+- Folder Attachments chứa toàn bộ tệp đính kèm từ email.
 
-```js
-import * as PST from "pst-parser";
-
-if (file instanceof File) {
-    const buffer = await file.arrayBuffer();
-
-    const pst = new PST.PSTFile(buffer);
-
-    const messageStore = pst.getMessageStore();
-    console.log(messageStore.getAllProperties());
-
-    const rootFolder = messageStore.getRootFolder();
-    console.log(rootFolder.getAllProperties());
-
-    if (rootFolder.hasSubfolders) {
-        // Get listing of subfolders
-        const entries = rootFolder.getSubFolderEntries();
-
-        // Get folder object for the first subfolder
-        const subFolder = rootFolder.getSubFolder(entries[0].nid);
-
-        console.log(subFolder.displayName);
-
-        // Get first 5 message entries
-        const messageEntries = subFolder.getContents(0, 5);
-
-        // Get actual message object
-        const message = subFolder.getMessage(messageEntries[0].nid);
-
-        console.log(message.getAllProperties());
-    }
-}
-```
-
-
-## FAQ
-
-### What can it do?
-
-It can read some (most?) parts of a PST file.
-
-### Can it write to a PST file?
-
-No, read only.
-
-### Will this break?
-
-Yes, I promise it will at some point. There's lots in the spec that's not
-implemented yet, merely because I haven't run into it with the limited set of test
-PST files I have to hand. You might not be so lucky.
-
-There are also tons of edge cases and particular behaviours that only come into
-play in very specific situations. (e.g. The subject field has specific processing
-distinct from every other type of value stored in the pst file) Most of these
-are not implemented.
-
-### Will this destroy my data?
-
-Fortunately it shouldn't. The library is read only, so unless something goes
-catastrophically wrong your data should be safe.
-
-### Do you have a demo site/project using this library?
-
-Yes, I do. See this demo web app https://ijmacd.github.io/pst-browser/ with its source at https://github.com/IJMacD/pst-browser.
-
-### Can you give me a brief, very high level view of the layout, contents, structure and organisation of a PST file?
-
-Sure, here you go.
-
-![PST File Layout](ref/pst%20layout.svg)
+4. Thư mục ErrLog sẽ bị truncate trước khi chạy và ghi log những file xuất hiện lỗi.
+5. Trường hợp muốn phát triển thêm chức năng, tham khảo file test.js hoặc đọc file JS core trong folder ./src.
