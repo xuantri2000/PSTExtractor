@@ -20,17 +20,17 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
 2. Mở Command Prompt (CMD) và chạy lệnh: 
 
    ```bash
-   node main.js
+   npm start
 
 - Nếu chỉ cần test 1 hoặc 2 file .pst (trong trường hợp file bị lỗi), copy chúng vào một thư mục cùng cấp và chạy lệnh:
 
    ```bash
-   node main.js <tên_thư_mục_vừa_tạo>
+   npm start -- <tên_thư_mục_vừa_tạo>
 
 - Ví dụ, khi cần test file abc.pst, tạo một thư mục tên test và copy file đó vào, sau đó chạy lệnh:
 
    ```bash
-   node main.js test
+   npm start -- test
 
 3. Trước khi chạy, toàn bộ log từ lần chạy trước đó trong PSTOutput sẽ bị truncate để tạo log mới. Trong PSTOutput có:
 - File ghi lại toàn bộ nội dung của tệp PST.
