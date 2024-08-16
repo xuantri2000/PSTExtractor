@@ -20,15 +20,16 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
 
 ## Chạy file JS
 0. Log sẽ được tạo ra trong thư mục /main.
-1. Copy toàn bộ file PST vào thư mục PSTFolder. Toàn bộ output sẽ được lưu vào thư mục PSTOutput.
+1. Copy toàn bộ file PST vào thư mục **PSTFolder**. Toàn bộ output sẽ được lưu vào thư mục **PSTOutput**.
 2. Tham số:
-- --dir=<đường dẫn đọc file PST> (mặc định là PSTFolder)
-- --rm=<true|false> (cờ để xóa PSTOutput trước khi chạy, mặc định là true)
+- **--dir=<đường dẫn đọc file PST>** (mặc định là PSTFolder)
+- **--rm** (cờ để xóa PSTOutput trước khi chạy, mặc định là false)
+- **--rt** (cờ để chạy lại những file PST đã lỗi trước đó trong folder **ErrorLog**, mặc định là false. Khi cờ này được bật, **--dir** sẽ đọc mặc định ở **PSTFolder**, **--rm** sẽ là false)
 3. Mở Command Prompt (CMD) và chạy lệnh:
 
    ```bash
    npm start
-- Câu lệnh này sẽ đọc file PST ở thư mục PSTFolder và xóa đi PSTOutput cũ để ghi log mới.
+- Câu lệnh này sẽ đọc file PST ở thư mục **PSTFolder**, không xóa log cũ ở **PSTOutput**.
 - Nếu chỉ cần test 1 hoặc 2 file .pst (trong trường hợp file bị lỗi), copy chúng vào một thư mục cùng cấp và chạy lệnh:
 
    ```bash
@@ -39,9 +40,15 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
    ```bash
    npm start -- --dir=test
    
-- Trường hợp không muốn xóa đi PSTOutput cũ và khởi chạy nối log vào folder PSTOutput, nếu folder đã tồn tại thì sẽ thêm hậu tố (1) (2) vào tên folder:
+- Trường hợp muốn đọc pst ở folder test xóa đi log ở PSTOutput:
    ```bash
-   npm start -- --dir=test --rm=false
+   npm start -- --dir=test --rm
+- Trường hợp muốn retry những file đã bị lỗi trước đó ở ErrorLog:
+   ```bash
+   npm start -- --rt
+- Khi chạy đủ 3 arguments như câu lệnh dưới đây, 2 argument --dir và --rm sẽ bị vô hiệu hóa và đọc giá trị mặc định để tiến hành retry ở folder **ErrorLog**:
+  ```bash
+  npm start -- --dir=test --rm --rt
 
 3. Trong PSTOutput có:
 - File ghi lại toàn bộ nội dung của tệp PST.
