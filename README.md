@@ -14,7 +14,7 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
    ```bash
    git clone https://github.com/xuantri2000/PSTExtractor.git
 
-3. Khởi tạo package
+3. Khởi tạo package:
      ```bash
    npm install
 
