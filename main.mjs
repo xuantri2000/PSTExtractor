@@ -1,21 +1,32 @@
 import * as PST from "./src/index.js";
 import fs from "fs";
 import path from "path";
+import minimist from "minimist";
 
-const args = process.argv.slice(2);
-const testFolder = args[0];
+const args = minimist(process.argv.slice(2));
+
+const testFolder = args['dir'] || 'PSTFolder';
+const shouldRemove = args['rm'] !== undefined ? args['rm'] === 'true' : true;
 const baseFolder = "./main";
 const PSTFolder = testFolder ? path.join(baseFolder, testFolder) : path.join(baseFolder, "PSTFolder");
 const PSTOutput = path.join(baseFolder, "PSTOutput");
 const ErrorLog = path.join(baseFolder, "ErrorLog");
 
 // Đảm bảo các thư mục cần thiết tồn tại
-[PSTOutput, ErrorLog].forEach(dir => {
-    if (fs.existsSync(dir)) {
-		fs.rmSync(dir, { recursive: true, force: true });
-	}
-	fs.mkdirSync(dir, { recursive: true });
-});
+if (shouldRemove) {
+    [PSTOutput, ErrorLog].forEach(dir => {
+        if (fs.existsSync(dir)) {
+            fs.rmSync(dir, { recursive: true, force: true });
+        }
+        fs.mkdirSync(dir, { recursive: true });
+    });
+} else {
+    [PSTOutput, ErrorLog].forEach(dir => {
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+    });
+}
 
 // Đọc tất cả các file PST trong thư mục PSTFolder
 try{
@@ -36,7 +47,11 @@ catch(error)
 
 function processPSTFile(filename, currentFile, totalFiles) {
     const pstFilePath = path.join(PSTFolder, filename);
-    const outputFolder = path.join(PSTOutput, path.basename(filename, '.pst'));
+    let outputFolder = path.join(PSTOutput, path.basename(filename, '.pst'));
+
+	// Kiểm tra và thêm số nếu thư mục đã tồn tại
+	outputFolder = getUniqueFolderName(outputFolder);
+
     const attachmentsFolder = path.join(outputFolder, 'Attachments');
 	const mailContentsFolder = path.join(outputFolder, 'MailContents');
     const outputFilename = path.join(outputFolder, `${path.basename(filename, '.pst')}.txt`);
@@ -144,4 +159,17 @@ function sanitizeFilename(filename) {
 
     // Nếu tên file rỗng sau khi xử lý, sử dụng tên mặc định
     return sanitized || 'Unnamed_File';
+}
+
+// Hàm để kiểm tra thư mục và thêm số nếu cần thiết
+function getUniqueFolderName(baseFolder) {
+    let folder = baseFolder;
+    let counter = 1;
+
+    while (fs.existsSync(folder)) {
+        folder = `${baseFolder} (${counter})`;
+        counter++;
+    }
+
+    return folder;
 }
