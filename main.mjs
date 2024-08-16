@@ -40,6 +40,11 @@ function processPSTFiles() {
 		pstFiles = fs.readdirSync(PSTFolder)
 			.filter(file => path.extname(file).toLowerCase() === '.pst' && errorPstFiles.includes(file));
 		console.log("Retry mode is running...");
+
+		// Xóa tất cả các file trong ErrorLog
+		fs.readdirSync(ErrorLog).forEach(file => {
+			fs.unlinkSync(path.join(ErrorLog, file));
+		});
 	} else {
 		// Đọc tất cả các file PST trong thư mục PSTFolder
 		pstFiles = fs.readdirSync(PSTFolder).filter(file => path.extname(file).toLowerCase() === '.pst');
