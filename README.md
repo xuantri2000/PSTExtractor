@@ -1,4 +1,6 @@
 # PST Extractor
+Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính kèm.
+Được tham khảo từ [@calvin-commer/pst-parser](https://www.npmjs.com/package/@calvin-coomer/pst-parser?activeTab=readme).
 
 ## Môi trường
 
@@ -35,5 +37,5 @@
 - Folder MailContents chứa nội dung của toàn bộ email đã gửi và nhận, thư rác, thư nháp,...
 - Folder Attachments chứa toàn bộ tệp đính kèm từ email.
 
-4. Thư mục ErrLog sẽ bị truncate trước khi chạy và ghi log những file xuất hiện lỗi.
+4. Thư mục ErrorLog sẽ bị truncate trước khi chạy và ghi log những file xuất hiện lỗi.
 5. Trường hợp muốn phát triển thêm chức năng, tham khảo file test.js hoặc đọc file JS core trong folder ./src.
