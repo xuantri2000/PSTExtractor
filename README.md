@@ -12,7 +12,7 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
 - Nếu chưa có git thì tải tại [Git Offical Website](https://git-scm.com/downloads).
 2. Clone source về máy bằng lệnh:
    ```bash
-   git clone https://github.com/xuantri2000/PSTExtractor
+   git clone https://github.com/xuantri2000/PSTExtractor.git
 
 ## Chạy file JS
 0. Log sẽ được tạo ra trong thư mục /main.
