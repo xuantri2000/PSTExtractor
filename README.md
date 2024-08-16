@@ -5,7 +5,7 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
 ## Môi trường
 
 1. Tải và cài đặt Node.js tại [Node.js Official Website](https://nodejs.org/en).
-- Sau khi cài đặt xong, chạy cmd để kiểm tra version và biến môi trường node có chưa:
+- Sau khi cài đặt xong, chạy cmd để kiểm tra version và biến môi trường node có chưa, đảm bảo là phiên bản mới, hiện tại đang là node v20 LTS:
      ```bash
    node -v
    npm -v
