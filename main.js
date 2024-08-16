@@ -18,14 +18,21 @@ const ErrorLog = path.join(baseFolder, "ErrorLog");
 });
 
 // Đọc tất cả các file PST trong thư mục PSTFolder
-const pstFiles = fs.readdirSync(PSTFolder).filter(file => path.extname(file).toLowerCase() === '.pst');
-const totalFiles = pstFiles.length;
+try{
+	const pstFiles = fs.readdirSync(PSTFolder).filter(file => path.extname(file).toLowerCase() === '.pst');
+	const totalFiles = pstFiles.length;
+	
+	pstFiles.forEach((file, index) => {
+		const currentFile = index + 1;
+		console.log(`Processing file ${currentFile}/${totalFiles}: ${file}`);
+		processPSTFile(file, currentFile, totalFiles);
+	});
+}
+catch(error)
+{
+	console.log(`No such file or directory, scandir ${error.message}`);
+}
 
-pstFiles.forEach((file, index) => {
-    const currentFile = index + 1;
-    console.log(`Processing file ${currentFile}/${totalFiles}: ${file}`);
-    processPSTFile(file, currentFile, totalFiles);
-});
 
 function processPSTFile(filename, currentFile, totalFiles) {
     const pstFilePath = path.join(PSTFolder, filename);

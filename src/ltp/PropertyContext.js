@@ -206,7 +206,7 @@ export class PropertyContext extends BTreeOnHeap {
             return out;
         }
 
-        console.debug(`Unable to get data of type 0x${h(record.wPropType)}`);
+        // console.debug(`Unable to get data of type 0x${h(record.wPropType)}`);
 
         return null;
     }
