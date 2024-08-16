@@ -39,7 +39,7 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
    ```bash
    npm start -- --dir=test
    
-- Trường hợp không muốn xóa đi PSTOutput cũ mà chạy để nối log vào folder
+- Trường hợp không muốn xóa đi PSTOutput cũ và khởi chạy nối log vào folder PSTOutput, nếu folder đã tồn tại thì sẽ thêm hậu tố (1) (2) vào tên folder:
    ```bash
    npm start -- --dir=test --rm=false
 
