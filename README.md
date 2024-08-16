@@ -1,6 +1,6 @@
 # PST Extractor
 Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính kèm.
-Được tham khảo từ [@calvin-commer/pst-parser](https://www.npmjs.com/package/@calvin-coomer/pst-parser?activeTab=readme).
+Được tham khảo từ [@calvin-commer/pst-parser](https://www.npmjs.com/package/@calvin-coomer/pst-parser?activeTab=readme)
 
 ## Môi trường
 
