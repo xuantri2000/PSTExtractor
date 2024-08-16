@@ -14,25 +14,35 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
    ```bash
    git clone https://github.com/xuantri2000/PSTExtractor.git
 
+3. Khởi tạo package
+     ```bash
+   npm install
+
 ## Chạy file JS
 0. Log sẽ được tạo ra trong thư mục /main.
 1. Copy toàn bộ file PST vào thư mục PSTFolder. Toàn bộ output sẽ được lưu vào thư mục PSTOutput.
-2. Mở Command Prompt (CMD) và chạy lệnh: 
+2. Tham số:    --dir=<đường dẫn đọc file PST> (mặc định là PSTFolder)
+               --rm=<true|false> (cờ để xóa PSTOutput trước khi chạy, mặc định là true)
+3. Mở Command Prompt (CMD) và chạy lệnh:
 
    ```bash
    npm start
-
+- Câu lệnh này sẽ đọc file PST ở thư mục PSTFolder và xóa đi PSTOutput cũ để ghi log mới.
 - Nếu chỉ cần test 1 hoặc 2 file .pst (trong trường hợp file bị lỗi), copy chúng vào một thư mục cùng cấp và chạy lệnh:
 
    ```bash
-   npm start -- <tên_thư_mục_vừa_tạo>
+   npm start -- --dir=<thư mục vừa tạo>
 
 - Ví dụ, khi cần test file abc.pst, tạo một thư mục tên test và copy file đó vào, sau đó chạy lệnh:
 
    ```bash
-   npm start -- test
+   npm start -- --dir=test
+   
+- Trường hợp không muốn xóa đi PSTOutput cũ mà chạy để nối log vào folder
+   ```bash
+   npm start -- --dir=test --rm=false
 
-3. Trước khi chạy, toàn bộ log từ lần chạy trước đó trong PSTOutput sẽ bị truncate để tạo log mới. Trong PSTOutput có:
+3. Trong PSTOutput có:
 - File ghi lại toàn bộ nội dung của tệp PST.
 - Folder MailContents chứa nội dung của toàn bộ email đã gửi và nhận, thư rác, thư nháp,...
 - Folder Attachments chứa toàn bộ tệp đính kèm từ email. Vì một số lý do liên quan đến encode, nên file .word, .pptx mở lên bị lỗi encode cần phải xác nhận OK để bật.
