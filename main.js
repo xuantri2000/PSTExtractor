@@ -76,9 +76,13 @@ function printFolderTree(pst, nid, depth, attachmentsFolder, mailContentsFolder)
 	const folder = pst.getFolder(nid);
 	if (folder) {
 		output += `${" |  ".repeat(depth)}- ${folder.displayName}\n`;
+
 		// Print messages in this folder
 		const messages = folder.getContents();
 		for (const message of messages) {
+			if(message.sentRepresentingName == "" && message.subject == "")
+				continue;
+
 			output += `${" |  ".repeat(depth+1)}- Sender: ${message.sentRepresentingName}, Subject: ${message.subject}\n`;
 			
 			//Print attachments if any
