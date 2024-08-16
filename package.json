@@ -1,0 +1,9 @@
+{
+    "name": "pst-parser",
+    "version": "0.0.7",
+    "type": "module",
+    "main": "./src/index.js",
+    "repository": {
+        "url": "https://github.com/IJMacD/pst-parser.git"
+    }
+}
