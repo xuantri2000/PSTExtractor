@@ -4,16 +4,16 @@ import path from "path";
 import minimist from "minimist";
 
 const args = minimist(process.argv.slice(2));
-
-const testFolder = args['dir'] || 'PSTFolder';
-const shouldRemove = args['rm'] !== undefined ? args['rm'] === 'true' : true;
+const shouldRemove = args['rm'] !== undefined;
+const shouldRetry = args['rt'] !== undefined;
+const testFolder = args['dir'] !== undefined && !shouldRetry ? args['dir'] : 'PSTFolder';
 const baseFolder = "./main";
 const PSTFolder = testFolder ? path.join(baseFolder, testFolder) : path.join(baseFolder, "PSTFolder");
 const PSTOutput = path.join(baseFolder, "PSTOutput");
 const ErrorLog = path.join(baseFolder, "ErrorLog");
 
 // Đảm bảo các thư mục cần thiết tồn tại
-if (shouldRemove) {
+if (shouldRemove && !shouldRetry) {
     [PSTOutput, ErrorLog].forEach(dir => {
         if (fs.existsSync(dir)) {
             fs.rmSync(dir, { recursive: true, force: true });
@@ -28,22 +28,38 @@ if (shouldRemove) {
     });
 }
 
-// Đọc tất cả các file PST trong thư mục PSTFolder
-try{
-	const pstFiles = fs.readdirSync(PSTFolder).filter(file => path.extname(file).toLowerCase() === '.pst');
-	const totalFiles = pstFiles.length;
+// Xử lý file PST
+function processPSTFiles() {
+    let pstFiles;
+	if (shouldRetry) {
+		// Đọc các file lỗi từ ErrorLog
+		const errorFiles = fs.readdirSync(ErrorLog).filter(file => path.extname(file) === '.txt');
+		const errorPstFiles = errorFiles.map(file => path.basename(file, '.txt') + '.pst');
+		
+		// Lọc ra các file PST trong PSTFolder mà có trong danh sách lỗi
+		pstFiles = fs.readdirSync(PSTFolder)
+			.filter(file => path.extname(file).toLowerCase() === '.pst' && errorPstFiles.includes(file));
+		console.log("Retry mode is running...");
+	} else {
+		// Đọc tất cả các file PST trong thư mục PSTFolder
+		pstFiles = fs.readdirSync(PSTFolder).filter(file => path.extname(file).toLowerCase() === '.pst');
+	}
 	
-	pstFiles.forEach((file, index) => {
-		const currentFile = index + 1;
-		console.log(`Processing file ${currentFile}/${totalFiles}: ${file}`);
-		processPSTFile(file, currentFile, totalFiles);
-	});
-}
-catch(error)
-{
-	console.log(`No such file or directory, scandir ${error.message}`);
+    const totalFiles = pstFiles.length;
+
+    pstFiles.forEach((file, index) => {
+        const currentFile = index + 1;
+        console.log(`Processing file ${currentFile}/${totalFiles}: ${file}`);
+        processPSTFile(file, currentFile, totalFiles);
+    });
 }
 
+// Thử xử lý các file PST
+try {
+    processPSTFiles();
+} catch(error) {
+    console.log(`Error occurred: ${error.message}`);
+}
 
 function processPSTFile(filename, currentFile, totalFiles) {
     const pstFilePath = path.join(PSTFolder, filename);
@@ -53,7 +69,7 @@ function processPSTFile(filename, currentFile, totalFiles) {
 	outputFolder = getUniqueFolderName(outputFolder);
 
     const attachmentsFolder = path.join(outputFolder, 'Attachments');
-	const mailContentsFolder = path.join(outputFolder, 'MailContents');
+    const mailContentsFolder = path.join(outputFolder, 'MailContents');
     const outputFilename = path.join(outputFolder, `${path.basename(filename, '.pst')}.txt`);
 
     try {
@@ -64,23 +80,37 @@ function processPSTFile(filename, currentFile, totalFiles) {
             }
         });
 
-        const byteBuffer = fs.readFileSync(pstFilePath);
-        const pst = new PST.PSTFile(byteBuffer.buffer);
-        const messageStore = pst.getMessageStore();
+        // Sử dụng stream để đọc file
+        const fileStream = fs.createReadStream(pstFilePath);
+        const chunks = [];
 
-        if (!messageStore) {
-            throw new Error("Cannot find MessageStore");
-        }
+        fileStream.on('data', (chunk) => {
+            chunks.push(chunk);
+        });
 
-        let output = "";
+        fileStream.on('end', () => {
+            const buffer = Buffer.concat(chunks);
+            const pst = new PST.PSTFile(buffer.buffer);
+            const messageStore = pst.getMessageStore();
 
-        if (messageStore.rootFolderNID) {
-            output += printFolderTree(pst, messageStore.rootFolderNID, 0, attachmentsFolder, mailContentsFolder);
-        }
+            if (!messageStore) {
+                throw new Error("Cannot find MessageStore");
+            }
 
-        fs.writeFileSync(outputFilename, output);
+            let output = "";
+
+            if (messageStore.rootFolderNID) {
+                output += printFolderTree(pst, messageStore.rootFolderNID, 0, attachmentsFolder, mailContentsFolder);
+            }
+
+            fs.writeFileSync(outputFilename, output);
+        });
+
+        fileStream.on('error', (error) => {
+            throw error;
+        });
     } catch (e) {
-        const errorLogFile = path.join(ErrorLog, `${path.basename(filename, '.pst')}_error.txt`);
+        const errorLogFile = path.join(ErrorLog, `${path.basename(filename, '.pst')}.txt`);
         fs.writeFileSync(errorLogFile, `Error processing ${filename}: ${e.message}\n${e.stack}`);
         console.log(`Error occurred in file ${currentFile}/${totalFiles}: ${filename}`);
     }
