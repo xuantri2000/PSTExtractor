@@ -21,8 +21,9 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
 ## Chạy file JS
 0. Log sẽ được tạo ra trong thư mục /main.
 1. Copy toàn bộ file PST vào thư mục PSTFolder. Toàn bộ output sẽ được lưu vào thư mục PSTOutput.
-2. Tham số:    --dir=<đường dẫn đọc file PST> (mặc định là PSTFolder)
-               --rm=<true|false> (cờ để xóa PSTOutput trước khi chạy, mặc định là true)
+2. Tham số:
+- --dir=<đường dẫn đọc file PST> (mặc định là PSTFolder)
+- --rm=<true|false> (cờ để xóa PSTOutput trước khi chạy, mặc định là true)
 3. Mở Command Prompt (CMD) và chạy lệnh:
 
    ```bash
