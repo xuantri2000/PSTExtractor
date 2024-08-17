@@ -9,6 +9,21 @@ const read = promisify(fs.read);
 const close = promisify(fs.close);
 
 const args = minimist(process.argv.slice(2));
+
+// Thêm xử lý cho cờ --help
+if (args['help'] !== undefined) {
+    console.log(`
+---------------------------------------------------------
+Hướng dẫn sử dụng:
+--rm: Xóa 2 folders PSTOutput và ErrorLog trước khi tạo log mới, mặc định là false
+--dir=<tên folder>: Đọc folder PST được chỉ định thay vì PSTFolder
+--rt: Thử lại các file bị lỗi trong folder ErrorLog, mặc định là false
+    Lưu ý: cờ này không thể dùng chung với cờ --dir và --rm
+--lg: Cờ đọc các file lớn hơn 3GB
+---------------------------------------------------------
+    `);
+process.exit(0);
+}
 const shouldRemove = args['rm'] !== undefined;
 const shouldRetry = args['rt'] !== undefined;
 const testFolder = args['dir'] !== undefined && !shouldRetry ? args['dir'] : 'PSTFolder';
@@ -16,6 +31,7 @@ const baseFolder = "./main";
 const PSTFolder = testFolder ? path.join(baseFolder, testFolder) : path.join(baseFolder, "PSTFolder");
 const PSTOutput = path.join(baseFolder, "PSTOutput");
 const ErrorLog = path.join(baseFolder, "ErrorLog");
+const useLargeFileMode = args['lg'] !== undefined;
 
 // Đảm bảo các thư mục cần thiết tồn tại
 if (shouldRemove && !shouldRetry) {
@@ -101,8 +117,15 @@ async function processPSTFile(filename, currentFile, totalFiles) {
             }
         });
 
-        const byteBuffer = await readLargeFile(pstFilePath);
-        const pst = new PST.PSTFile(byteBuffer.buffer);
+        let pst;
+        if (useLargeFileMode) {
+            const pstData = await readPSTAsStream(pstFilePath);
+            pst = new PST.PSTFile(pstData.buffer);
+        } else {
+            const byteBuffer = await readLargeFile(pstFilePath);
+            pst = new PST.PSTFile(byteBuffer.buffer);
+        }
+
         const messageStore = pst.getMessageStore();
 
         if (!messageStore) {
@@ -147,6 +170,17 @@ async function readLargeFile(filePath) {
     }
 
     return buffer.slice(0, bytesRead);
+}
+
+// Hàm mới để đọc file PST theo stream
+async function readPSTAsStream(filePath) {
+    return new Promise((resolve, reject) => {
+        const stream = fs.createReadStream(filePath);
+        const chunks = [];
+        stream.on('data', (chunk) => chunks.push(chunk));
+        stream.on('end', () => resolve(Buffer.concat(chunks)));
+        stream.on('error', reject);
+    });
 }
 
 function printFolderTree(pst, nid, depth, attachmentsFolder, mailContentsFolder) {
