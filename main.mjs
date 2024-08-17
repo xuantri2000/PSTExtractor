@@ -2,6 +2,11 @@ import * as PST from "./src/index.js";
 import fs from "fs";
 import path from "path";
 import minimist from "minimist";
+import { promisify } from "util";
+
+const open = promisify(fs.open);
+const read = promisify(fs.read);
+const close = promisify(fs.close);
 
 const args = minimist(process.argv.slice(2));
 const shouldRemove = args['rm'] !== undefined;
@@ -29,44 +34,45 @@ if (shouldRemove && !shouldRetry) {
 }
 
 // Xử lý file PST
-function processPSTFiles() {
+async function processPSTFiles() {
     let pstFiles;
-	if (shouldRetry) {
-		// Đọc các file lỗi từ ErrorLog
-		const errorFiles = fs.readdirSync(ErrorLog).filter(file => path.extname(file) === '.txt');
-		const errorPstFiles = errorFiles.map(file => path.basename(file, '.txt') + '.pst');
-		
-		// Lọc ra các file PST trong PSTFolder mà có trong danh sách lỗi
-		pstFiles = fs.readdirSync(PSTFolder)
-			.filter(file => path.extname(file).toLowerCase() === '.pst' && errorPstFiles.includes(file));
-		console.log("----------Retry mode is running----------");
+    if (shouldRetry) {
+        // Đọc các file lỗi từ ErrorLog
+        const errorFiles = fs.readdirSync(ErrorLog).filter(file => path.extname(file) === '.txt');
+        const errorPstFiles = errorFiles.map(file => path.basename(file, '.txt') + '.pst');
+        
+        // Lọc ra các file PST trong PSTFolder mà có trong danh sách lỗi
+        pstFiles = fs.readdirSync(PSTFolder)
+            .filter(file => path.extname(file).toLowerCase() === '.pst' && errorPstFiles.includes(file));
+        console.log("----------Retry mode is running----------");
 
-		// Xóa tất cả các file trong ErrorLog
-		fs.readdirSync(ErrorLog).forEach(file => {
-			fs.unlinkSync(path.join(ErrorLog, file));
-		});
-	} else {
-		// Đọc tất cả các file PST trong thư mục PSTFolder
-		pstFiles = fs.readdirSync(PSTFolder).filter(file => path.extname(file).toLowerCase() === '.pst');
-	}
-	
+        // Xóa tất cả các file trong ErrorLog
+        fs.readdirSync(ErrorLog).forEach(file => {
+            fs.unlinkSync(path.join(ErrorLog, file));
+        });
+    } else {
+        // Đọc tất cả các file PST trong thư mục PSTFolder
+        pstFiles = fs.readdirSync(PSTFolder).filter(file => path.extname(file).toLowerCase() === '.pst');
+    }
+    
     const totalFiles = pstFiles.length;
 
-    pstFiles.forEach((file, index) => {
+    for (let index = 0; index < pstFiles.length; index++) {
+        const file = pstFiles[index];
         const currentFile = index + 1;
         console.log(`Processing file ${currentFile}/${totalFiles}: ${file}`);
-        processPSTFile(file, currentFile, totalFiles);
-    });
+        await processPSTFile(file, currentFile, totalFiles);
+    }
 
-	// Đọc các file lỗi từ ErrorLog
-	const errorFilesLength = fs.readdirSync(ErrorLog).filter(file => path.extname(file) === '.txt').length;
-	if (shouldRetry) {
-		console.log(`Completed retrying the Error Folder: ${errorFilesLength}/${totalFiles} error(s) remaining.`);
-	}
-	else
-	{
-		console.log(`Finished reading the PST folder: ${errorFilesLength}/${totalFiles} error(s) found.`);
-	}
+    // Đọc các file lỗi từ ErrorLog
+    const errorFilesLength = fs.readdirSync(ErrorLog).filter(file => path.extname(file) === '.txt').length;
+    if (shouldRetry) {
+        console.log(`Completed retrying the Error Folder: ${errorFilesLength}/${totalFiles} error(s) remaining.`);
+    }
+    else
+    {
+        console.log(`Finished reading the PST folder: ${errorFilesLength}/${totalFiles} error(s) found.`);
+    }
 }
 
 // Thử xử lý các file PST
@@ -76,12 +82,12 @@ try {
     console.log(`Error occurred: ${error.message}`);
 }
 
-function processPSTFile(filename, currentFile, totalFiles) {
+async function processPSTFile(filename, currentFile, totalFiles) {
     const pstFilePath = path.join(PSTFolder, filename);
     let outputFolder = path.join(PSTOutput, path.basename(filename, '.pst'));
 
-	// Kiểm tra và thêm số nếu thư mục đã tồn tại
-	outputFolder = getUniqueFolderName(outputFolder);
+    // Kiểm tra và thêm số nếu thư mục đã tồn tại
+    outputFolder = getUniqueFolderName(outputFolder);
 
     const attachmentsFolder = path.join(outputFolder, 'Attachments');
     const mailContentsFolder = path.join(outputFolder, 'MailContents');
@@ -95,7 +101,7 @@ function processPSTFile(filename, currentFile, totalFiles) {
             }
         });
 
-        const byteBuffer = fs.readFileSync(pstFilePath);
+        const byteBuffer = await readLargeFile(pstFilePath);
         const pst = new PST.PSTFile(byteBuffer.buffer);
         const messageStore = pst.getMessageStore();
 
@@ -110,67 +116,91 @@ function processPSTFile(filename, currentFile, totalFiles) {
         }
 
         fs.writeFileSync(outputFilename, output);
-		console.log(`Logging sucessfully: ${filename}\n`);
+        console.log(`Logging successfully: ${filename}\n`);
     } catch (e) {
-		fs.rmSync(outputFolder, { recursive: true, force: true });
+        fs.rmSync(outputFolder, { recursive: true, force: true });
         const errorLogFile = path.join(ErrorLog, `${path.basename(filename, '.pst')}.txt`);
         fs.writeFileSync(errorLogFile, `Error processing ${filename}: ${e.message}\n${e.stack}`);
         console.log(`Error occurred in file ${currentFile}/${totalFiles}: ${filename}\n`);
     }
 }
 
+async function readLargeFile(filePath) {
+    const fd = await open(filePath, 'r');
+    const stats = await fs.promises.stat(filePath);
+    const fileSize = stats.size;
+    const bufferSize = 1024 * 1024 * 1024; // 1GB
+    let buffer = Buffer.alloc(fileSize);
+    let bytesRead = 0;
+    let position = 0;
+    
+    try {
+        while (position < fileSize) {
+            const result = await read(fd, buffer, position, Math.min(bufferSize, fileSize - position), position);
+            if (result.bytesRead === 0) break;
+            
+            position += result.bytesRead;
+            bytesRead += result.bytesRead;
+        }
+    } finally {
+        await close(fd);
+    }
+
+    return buffer.slice(0, bytesRead);
+}
+
 function printFolderTree(pst, nid, depth, attachmentsFolder, mailContentsFolder) {
     let output = "";
-	const folder = pst.getFolder(nid);
-	if (folder) {
-		output += `${" |  ".repeat(depth)}- ${folder.displayName}\n`;
+    const folder = pst.getFolder(nid);
+    if (folder) {
+        output += `${" |  ".repeat(depth)}- ${folder.displayName}\n`;
 
-		// Print messages in this folder
-		const messages = folder.getContents();
-		for (const message of messages) {
-			if(message.sentRepresentingName == "" && message.subject == "")
-				continue;
+        // Print messages in this folder
+        const messages = folder.getContents();
+        for (const message of messages) {
+            if(message.sentRepresentingName == "" && message.subject == "")
+                continue;
 
-			output += `${" |  ".repeat(depth+1)}- Sender: ${message.sentRepresentingName}, Subject: ${message.subject}\n`;
-			
-			//Print attachments if any
-			const messageData = pst.getMessage(message.nid);
+            output += `${" |  ".repeat(depth+1)}- Sender: ${message.sentRepresentingName}, Subject: ${message.subject}\n`;
+            
+            //Print attachments if any
+            const messageData = pst.getMessage(message.nid);
 
-			//Ghi nội dung dung vào file
-			if(messageData.body != "")
-			{
-				const sanitizedSubject = sanitizeFilename(message.subject).slice(0, 200);
-				const mailContentFilename = path.join(mailContentsFolder, `${sanitizedSubject}.txt`);
-				try {
-					fs.writeFileSync(mailContentFilename, messageData.body);
-				} catch (error) {
-					fs.writeFileSync(mailContentFilename, error.message);
-				}
-			}
+            //Ghi nội dung dung vào file
+            if(messageData.body != "")
+            {
+                const sanitizedSubject = sanitizeFilename(message.subject).slice(0, 200);
+                const mailContentFilename = path.join(mailContentsFolder, `${sanitizedSubject}.txt`);
+                try {
+                    fs.writeFileSync(mailContentFilename, messageData.body);
+                } catch (error) {
+                    fs.writeFileSync(mailContentFilename, error.message);
+                }
+            }
 
-			if (messageData.hasAttachments) {
-				const attachments = messageData.getAttachmentEntries();
-				for (let i = 0; i < attachments.length; i++) {
-					try {
-						const attachmentData = messageData.getAttachment(i);
-						if (attachmentData) {
-							const filePath = path.join(attachmentsFolder, attachmentData.displayName);
-							fs.writeFileSync(filePath, Buffer.from(attachmentData.attachDataBinary));
-							output += `${" |  ".repeat(depth + 2)}- Attachment: ${attachmentData.displayName}, Size: ${attachmentData.attachSize} bytes\n`;
-						}
-					} catch (error) {
-						output += `${" |  ".repeat(depth + 2)}- Error processing attachment: ${error.message}\n`;
-					}
-				}
-			}
-		}
+            if (messageData.hasAttachments) {
+                const attachments = messageData.getAttachmentEntries();
+                for (let i = 0; i < attachments.length; i++) {
+                    try {
+                        const attachmentData = messageData.getAttachment(i);
+                        if (attachmentData) {
+                            const filePath = path.join(attachmentsFolder, attachmentData.displayName);
+                            fs.writeFileSync(filePath, Buffer.from(attachmentData.attachDataBinary));
+                            output += `${" |  ".repeat(depth + 2)}- Attachment: ${attachmentData.displayName}, Size: ${attachmentData.attachSize} bytes\n`;
+                        }
+                    } catch (error) {
+                        output += `${" |  ".repeat(depth + 2)}- Error processing attachment: ${error.message}\n`;
+                    }
+                }
+            }
+        }
 
-		// Recursively print subfolders
-		const subfolders = folder.getSubFolderEntries();
-		for (const sf of subfolders) {
-			output += printFolderTree(pst, sf.nid, depth + 1, attachmentsFolder, mailContentsFolder);
-		}
-	}
+        // Recursively print subfolders
+        const subfolders = folder.getSubFolderEntries();
+        for (const sf of subfolders) {
+            output += printFolderTree(pst, sf.nid, depth + 1, attachmentsFolder, mailContentsFolder);
+        }
+    }
     return output;
 }
 
