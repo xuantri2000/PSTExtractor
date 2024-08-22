@@ -12,14 +12,14 @@ const args = minimist(process.argv.slice(2));
 
 // Thêm xử lý cho cờ --help
 if (args['help'] !== undefined) {
-    console.log(`
+	// --lg: Cờ đọc các file lớn hơn 3GB (Pending)
+    console.warn(`
 ---------------------------------------------------------
 Hướng dẫn sử dụng:
 --rm: Xóa 2 folders PSTOutput và ErrorLog trước khi tạo log mới, mặc định là false
 --dir=<tên folder>: Đọc folder PST được chỉ định thay vì PSTFolder
 --rt: Thử lại các file bị lỗi trong folder ErrorLog, mặc định là false
     Lưu ý: cờ này không thể dùng chung với cờ --dir và --rm
---lg: Cờ đọc các file lớn hơn 3GB
 ---------------------------------------------------------
     `);
 process.exit(0);
@@ -60,7 +60,7 @@ async function processPSTFiles() {
         // Lọc ra các file PST trong PSTFolder mà có trong danh sách lỗi
         pstFiles = fs.readdirSync(PSTFolder)
             .filter(file => path.extname(file).toLowerCase() === '.pst' && errorPstFiles.includes(file));
-        console.log("----------Retry mode is running----------");
+        console.warn("----------Retry mode is running----------");
 
         // Xóa tất cả các file trong ErrorLog
         fs.readdirSync(ErrorLog).forEach(file => {
@@ -95,7 +95,7 @@ async function processPSTFiles() {
 try {
     processPSTFiles();
 } catch(error) {
-    console.log(`Error occurred: ${error.message}`);
+    console.error(`Error occurred: ${error.message}`);
 }
 
 async function processPSTFile(filename, currentFile, totalFiles) {
@@ -144,7 +144,7 @@ async function processPSTFile(filename, currentFile, totalFiles) {
         fs.rmSync(outputFolder, { recursive: true, force: true });
         const errorLogFile = path.join(ErrorLog, `${path.basename(filename, '.pst')}.txt`);
         fs.writeFileSync(errorLogFile, `Error processing ${filename}: ${e.message}\n${e.stack}`);
-        console.log(`Error occurred in file ${currentFile}/${totalFiles}: ${filename}\n`);
+        console.error(`Error occurred in file ${currentFile}/${totalFiles}: ${filename}\n`);
     }
 }
 
@@ -185,54 +185,70 @@ async function readPSTAsStream(filePath) {
 
 function printFolderTree(pst, nid, depth, attachmentsFolder, mailContentsFolder) {
     let output = "";
-    const folder = pst.getFolder(nid);
-    if (folder) {
-        output += `${" |  ".repeat(depth)}- ${folder.displayName}\n`;
+    try {
+        const folder = pst.getFolder(nid);
+        if (folder) {
+            output += `${" |  ".repeat(depth)}- ${folder.displayName}\n`;
 
-        // Print messages in this folder
-        const messages = folder.getContents();
-        for (const message of messages) {
-            if(message.sentRepresentingName == "" && message.subject == "")
-                continue;
+            // Print messages in this folder
+            const messages = folder.getContents();
+            for (const message of messages) {
+                if(message.sentRepresentingName == "" && message.subject == "")
+                    continue;
 
-            output += `${" |  ".repeat(depth+1)}- Sender: ${message.sentRepresentingName}, Subject: ${message.subject}\n`;
-            
-            //Print attachments if any
-            const messageData = pst.getMessage(message.nid);
+                output += `${" |  ".repeat(depth+1)}- Sender: ${message.sentRepresentingName}, Subject: ${message.subject}\n`;
+                
+                //Print attachments if any
+                const messageData = pst.getMessage(message.nid);
 
-            //Ghi nội dung dung vào file
-            if(messageData.body != "")
-            {
-                const sanitizedSubject = sanitizeFilename(message.subject).slice(0, 200);
-                const mailContentFilename = path.join(mailContentsFolder, `${sanitizedSubject}.txt`);
-                try {
-                    fs.writeFileSync(mailContentFilename, messageData.body);
-                } catch (error) {
-                    fs.writeFileSync(mailContentFilename, error.message);
-                }
-            }
-
-            if (messageData.hasAttachments) {
-                const attachments = messageData.getAttachmentEntries();
-                for (let i = 0; i < attachments.length; i++) {
+                //Ghi nội dung dung vào file
+                if(messageData.body != "")
+                {
+                    const sanitizedSubject = sanitizeFilename(message.subject).slice(0, 200);
+                    const mailContentFilename = path.join(mailContentsFolder, `${sanitizedSubject}.txt`);
                     try {
-                        const attachmentData = messageData.getAttachment(i);
-                        if (attachmentData) {
-                            const filePath = path.join(attachmentsFolder, attachmentData.displayName);
-                            fs.writeFileSync(filePath, Buffer.from(attachmentData.attachDataBinary));
-                            output += `${" |  ".repeat(depth + 2)}- Attachment: ${attachmentData.displayName}, Size: ${attachmentData.attachSize} bytes\n`;
-                        }
+                        fs.writeFileSync(mailContentFilename, messageData.body);
                     } catch (error) {
-                        output += `${" |  ".repeat(depth + 2)}- Error processing attachment: ${error.message}\n`;
+                        fs.writeFileSync(mailContentFilename, error.message);
+                    }
+                }
+
+                if (messageData.hasAttachments) {
+                    const attachments = messageData.getAttachmentEntries();
+                    for (let i = 0; i < attachments.length; i++) {
+                        try {
+                            const attachmentData = messageData.getAttachment(i);
+                            if (attachmentData) {
+                                const filePath = path.join(attachmentsFolder, attachmentData.displayName);
+                                fs.writeFileSync(filePath, Buffer.from(attachmentData.attachDataBinary));
+                                output += `${" |  ".repeat(depth + 2)}- Attachment: ${attachmentData.displayName}, Size: ${attachmentData.attachSize} bytes\n`;
+                            }
+                        } catch (error) {
+                            output += `${" |  ".repeat(depth + 2)}- Error processing attachment: ${error.message}\n`;
+                        }
                     }
                 }
             }
-        }
 
-        // Recursively print subfolders
-        const subfolders = folder.getSubFolderEntries();
-        for (const sf of subfolders) {
-            output += printFolderTree(pst, sf.nid, depth + 1, attachmentsFolder, mailContentsFolder);
+            // Recursively print subfolders
+            const subfolders = folder.getSubFolderEntries();
+            for (const sf of subfolders) {
+                try {
+                    output += printFolderTree(pst, sf.nid, depth + 1, attachmentsFolder, mailContentsFolder);
+                } catch (e) {
+                    output += `${" |  ".repeat(depth + 1)}- Error processing subfolder: ${e.message}\n`;
+                    console.warn(`Error processing subfolder with NID ${sf.nid}: ${e.message}`);
+                    continue;
+                }
+            }
+        }
+    } catch (e) {
+        if (e.message.includes("XXBlock")) {
+            output += `${" |  ".repeat(depth)}- Skipping XXBlock: ${e.message}\n`;
+            console.warn(`Skipping XXBlock for NID ${nid}: ${e.message}`);
+        } else {
+            output += `${" |  ".repeat(depth)}- Error processing folder: ${e.message}\n`;
+            console.error(`Error processing folder with NID ${nid}: ${e.message}`);
         }
     }
     return output;
