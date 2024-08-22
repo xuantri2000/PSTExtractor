@@ -45,9 +45,9 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
 - Trường hợp muốn đọc pst ở folder test xóa đi log ở PSTOutput:
    ```bash
    npm start -- --dir=test --rm
-- Trường hợp muốn retry những file đã bị lỗi trước đó ở ErrorLog, và chạy theo Stream để đọc file lớn:
+- Trường hợp muốn retry những file đã bị lỗi trước đó ở ErrorLog:
    ```bash
-   npm start -- --rt --lg
+   npm start -- --rt
 - Khi chạy đủ 3 arguments như câu lệnh dưới đây, 2 argument --dir và --rm sẽ bị vô hiệu hóa và đọc giá trị mặc định để tiến hành retry ở folder **ErrorLog**:
   ```bash
   npm start -- --dir=test --rm --rt
