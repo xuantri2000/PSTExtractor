@@ -406,8 +406,54 @@ export class PSTInternal {
         }
 
         if (block instanceof XXBlock) {
-            throw Error("Unimplemented: XXBlock");
-        }
+			// Tính toán kích thước tổng cho tất cả các XBlock bên trong
+			let totalSize = 0;
+			const blockOffsets = [];
+		
+			for (let i = 0; i < block.cEnt; i++) {
+				const dataBid = block.getBID(i);
+				const dataXBlock = this.getBlock(dataBid);
+		
+				if (dataXBlock instanceof XBlock) {
+					// Tính kích thước cho XBlock
+					totalSize += dataXBlock.cEnt * 8192; // Hoặc kích thước thực tế của XBlock
+				} else {
+					throw Error("Unexpected Block type as child of XXBlock");
+				}
+			}
+		
+			const out = new ArrayBuffer(totalSize);
+			let offset = 0;
+		
+			for (let i = 0; i < block.cEnt; i++) {
+				const dataBid = block.getBID(i);
+				const dataXBlock = this.getBlock(dataBid);
+		
+				if (dataXBlock instanceof XBlock) {
+					for (let j = 0; j < dataXBlock.cEnt; j++) {
+						const dataxBid = dataXBlock.getBID(j);
+						const dataBlock = this.getBlock(dataxBid);
+		
+						if (dataBlock instanceof DataBlock) {
+							const dataSize = dataBlock.dataSize;
+							if (offset + dataSize > totalSize) {
+								throw Error("Insufficient ArrayBuffer size for XXBlock data");
+							}
+		
+							this.getBlockData(dataxBid, new DataView(out, offset, dataSize));
+							blockOffsets.push(offset);
+							offset += dataSize;
+						} else {
+							throw Error("Unexpected Block type as child of XBlock");
+						}
+					}
+				} else {
+					throw Error("Unexpected Block type as child of XXBlock");
+				}
+			}
+		
+			return { data: new DataView(out), blockOffsets };
+		}
 
         if (block instanceof SubnodeIntermediateBlock) {
             throw Error("Unimplemented: SubnodeIntermediateBlock");

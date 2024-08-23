@@ -52,10 +52,17 @@ export class Folder {
 
         if (keys.length > 0) {
             for (let i = start; i < end && i < this.contentCount; i++) {
-                const props = this.#cTC.getAllRowProperties(i);
-                const msg = propertiesToObject(props);
-                msg.nid = this.#cTC.getCellValueByColumnTag(i, Tags.PID_TAG_LTP_ROW_ID);
-                out.push(msg);
+                // try
+                // {
+                    const props = this.#cTC.getAllRowProperties(i);
+                    const msg = propertiesToObject(props);
+                    msg.nid = this.#cTC.getCellValueByColumnTag(i, Tags.PID_TAG_LTP_ROW_ID);
+                    out.push(msg);
+                // }catch(error)
+                // {
+                //     // console.warn(error.message)
+                //     continue;
+                // }
             }
         }
 
