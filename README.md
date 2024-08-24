@@ -59,3 +59,6 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
 
 4. Thư mục ErrorLog sẽ bị truncate trước khi chạy và ghi log những file xuất hiện lỗi.
 5. Trường hợp muốn phát triển thêm chức năng, tham khảo file test.js hoặc đọc file JS core trong folder ./src.
+- Logic chỉnh sửa chủ yếu là từ PSTInternal.js.
+- XXBlock bao gồm nhiều tập hợp XBlock, XBlock bao gồm nhiều DataBlock, Datablock chính là class chứa thông tin của Mail, XXBlock thường xuất hiện ở các file lớn.
+- SubnodeIntermediateBlock bao gồm nhiều tập hợp SubnodeLeafBlock, logic #getSubNodeAccessor(bidSub) getSubEntry được chỉnh sửa để bổ sung thêm 1 vòng lặp lớn tìm kiếm internalNid.

@@ -504,33 +504,53 @@ export class PSTInternal {
      * @param {bigint} bidSub
      */
     #getSubNodeAccessor(bidSub) {
-        const getSubEntry = (/** @type {number} */internalNid) => {
-            if (bidSub === 0n) {
-                return null;
-            }
-
-            const block = this.getBlock(bidSub);
-
-            if (!block) {
-                throw Error("Unable to find block with bid " + bidSub);
-            }
-
-            if (!(block instanceof SubnodeLeafBlock)) {
-                throw Error("Expected SubnodeLeafBlock");
-            }
-
-            for (let i = 0; i < block.cEnt; i++) {
-                const e = block.getEntry(i);
-                const nid = parseInt((e.nid & 0xFFFFFFFFn).toString());
-                if (nid === internalNid) {
-                    return e;
-                }
-            }
-
-            // Not found
-
-            return null;
-        };
+		const getSubEntry = (/** @type {number} */internalNid) => {
+			if (bidSub === 0n) {
+				return null;
+			}
+		
+			const block = this.getBlock(bidSub);
+		
+			if (!block) {
+				throw Error("Unable to find block with bid " + bidSub);
+			}
+		
+			// Nếu block là SubnodeIntermediateBlock, cần duyệt qua các SubnodeLeafBlock con
+			if (block instanceof SubnodeIntermediateBlock) {
+				for (let i = 0; i < block.cEnt; i++) {
+					const subBid = block.getEntry(i).bidSub;
+					const subBlock = this.getBlock(subBid);
+		
+					if (subBlock instanceof SubnodeLeafBlock) {
+						// Duyệt qua các entry của SubnodeLeafBlock để tìm internalNid
+						for (let j = 0; j < subBlock.cEnt; j++) {
+							const e = subBlock.getEntry(j);
+							const nid = parseInt((e.nid & 0xFFFFFFFFn).toString());
+							if (nid === internalNid) {
+								return e;
+							}
+						}
+					}
+				}
+			}
+		
+			// Nếu không phải là SubnodeIntermediateBlock thì phải là SubnodeLeafBlock
+			if (!(block instanceof SubnodeLeafBlock)) {
+				throw Error("Expected SubnodeLeafBlock");
+			}
+		
+			// Duyệt qua các entry của SubnodeLeafBlock hiện tại
+			for (let i = 0; i < block.cEnt; i++) {
+				const e = block.getEntry(i);
+				const nid = parseInt((e.nid & 0xFFFFFFFFn).toString());
+				if (nid === internalNid) {
+					return e;
+				}
+			}
+		
+			// Không tìm thấy
+			return null;
+		};
 
         const getSubData = (/** @type {number} internalNid */internalNid) => {
             const subEntry = getSubEntry(internalNid);

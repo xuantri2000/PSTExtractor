@@ -199,7 +199,16 @@ function printFolderTree(pst, nid, depth, attachmentsFolder, mailContentsFolder)
 				output += `${" |  ".repeat(depth+1)}- Sender: ${message.sentRepresentingName}, Subject: ${message.subject}\n`;
 				
 				//Print attachments if any
-				const messageData = pst.getMessage(message.nid);
+				let messageData;
+				try
+				{
+					messageData = pst.getMessage(message.nid);
+				}
+				catch(error)
+				{
+					// console.log(error);
+					continue;
+				}
 
 				//Ghi nội dung dung vào file
 				if(messageData.body != "")
