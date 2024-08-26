@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/5be86904-531b-49af-873b-a018e07a53d3)# PST Extractor
+# PST Extractor
 Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính kèm.
 Được tham khảo từ [@calvin-commer/pst-parser](https://www.npmjs.com/package/@calvin-coomer/pst-parser?activeTab=readme) và [IJMacD/pst-parser](https://github.com/IJMacD/pst-parser)
 
@@ -62,3 +62,4 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
 - Logic chỉnh sửa chủ yếu là từ PSTInternal.js.
 - XXBlock bao gồm nhiều tập hợp XBlock, XBlock bao gồm nhiều DataBlock, Datablock chính là class chứa thông tin của Mail, XXBlock thường xuất hiện ở các file lớn.
 - SubnodeIntermediateBlock bao gồm nhiều tập hợp SubnodeLeafBlock, logic #getSubNodeAccessor(bidSub) getSubEntry được chỉnh sửa để bổ sung thêm 1 vòng lặp lớn tìm kiếm internalNid.
+- ![image](https://github.com/user-attachments/assets/5be86904-531b-49af-873b-a018e07a53d3)
