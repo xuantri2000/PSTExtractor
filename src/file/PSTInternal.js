@@ -398,7 +398,7 @@ export class PSTInternal {
                     offset += dataSize;
                 }
                 else {
-                    throw Error("Unexpected Block type as child of XBlock");
+                    console.warn(`Unexpected Block type as child of XBlock at bid ${dataBid}, continue...`);
                 }
             }
 
@@ -418,7 +418,7 @@ export class PSTInternal {
 					// Tính kích thước cho XBlock
 					totalSize += dataXBlock.cEnt * 8192; // Hoặc kích thước thực tế của XBlock
 				} else {
-					throw Error("Unexpected Block type as child of XXBlock");
+					console.warn(`Unexpected Block type as child of XXBlock at bid ${dataBid}, continue...`);
 				}
 			}
 		
@@ -433,7 +433,6 @@ export class PSTInternal {
 					for (let j = 0; j < dataXBlock.cEnt; j++) {
 						const dataxBid = dataXBlock.getBID(j);
 						const dataBlock = this.getBlock(dataxBid);
-		
 						if (dataBlock instanceof DataBlock) {
 							const dataSize = dataBlock.dataSize;
 							if (offset + dataSize > totalSize) {
@@ -444,11 +443,11 @@ export class PSTInternal {
 							blockOffsets.push(offset);
 							offset += dataSize;
 						} else {
-							throw Error("Unexpected Block type as child of XBlock");
+							console.warn(`Unexpected Block type as child of XBlock at bid ${dataxBid}, continue...`);
 						}
 					}
 				} else {
-					throw Error("Unexpected Block type as child of XXBlock");
+					console.warn(`Unexpected Block type as child of XXBlock at bid ${dataBid}, continue...`);
 				}
 			}
 		

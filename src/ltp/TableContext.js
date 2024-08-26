@@ -212,7 +212,7 @@ export class TableContext extends HeapNode {
 
             // console.debug(`Unable to get data of type 0x${h(columnDesc.dataType)}`);
         } catch (e) {
-            console.log(e);
+            // console.log(e);
             console.error(`Unable to get data for rowIndex: ${rowIndex} tag: 0x${h(columnTag)} cellData: 0x${h(cellData)} dataType: 0x${h(columnDesc.dataType)}`);
         }
 
