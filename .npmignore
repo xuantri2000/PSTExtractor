@@ -1,5 +1,5 @@
 /.vscode/
 /ref/tags
-/main/PSTOutput
-/main/PSTFolder
-/main/ErrorLog
+/PSTOutput
+/PSTFolder
+/ErrorLog
