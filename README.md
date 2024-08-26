@@ -27,6 +27,7 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
    ```bash
    outlook-parser
 - Câu lệnh này sẽ đọc file PST ở thư mục **PSTFolder**, không xóa log cũ ở **PSTOutput**.
+- Lưu ý: nếu ko install package global mà chỉ install ở dev thì thêm npx vào đầu mỗi câu lệnh: npx outlook-parser
 - Nếu chỉ cần test 1 hoặc 2 file .pst (trong trường hợp file bị lỗi), copy chúng vào một thư mục cùng cấp và chạy lệnh:
 
    ```bash
