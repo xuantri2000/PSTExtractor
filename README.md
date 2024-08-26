@@ -10,15 +10,15 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
    node -v
    npm -v
 - Nếu chưa có git thì tải tại [Git Offical Website](https://git-scm.com/downloads).
-2. Install package global để có thể dùng ở bất cứ đâu
+2. Install package global để có thể dùng ở bất cứ đâu (nếu ko được thì chạy với quyền admin)
    ```bash
    npm install -g outlook-parser
 
 ## Chạy file JS
-1. Copy toàn bộ file PST vào thư mục **PSTFolder**. Toàn bộ output sẽ được lưu vào thư mục **PSTOutput**.
+1. Tạo thư mục **PSTFolder** tại vị trí muốn chạy cmd, copy toàn bộ file PST vào thư mục **PSTFolder**. Toàn bộ output sẽ được lưu vào thư mục **PSTOutput**.
 2. Tham số:
 - **--dir=<đường dẫn đọc file PST>** (mặc định là PSTFolder)
-- **--rm** (cờ để xóa PSTOutput trước khi chạy, mặc định là false)
+- **--rm** (cờ để xóa PSTOutput trước khi chạy, mặc định là false)`
 - **--rt** (cờ để chạy lại những file PST đã lỗi trước đó trong folder **ErrorLog**, mặc định là false. Khi cờ này được bật, **--dir** sẽ đọc mặc định ở **PSTFolder**, **--rm** sẽ là false)
 <!-- - **--lg** (cờ để chạy với mode đọc file lớn hơn 3GB theo Stream, thời gian sẽ lâu hơn bình thường, nên dùng chung với cờ --rt để target vào các file lỗi) -->
 - **--help** (cờ để mở hướng dẫn sử dụng)
