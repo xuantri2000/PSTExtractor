@@ -1,14 +1,27 @@
 {
-	"name": "pst-parser",
-	"version": "0.0.7",
-	"type": "module",
+	"name": "outlook-parser",
+	"version": "1.0.7",
+	"description": "A tool for parsing PST files.",
 	"main": "./main.mjs",
+	"type": "module",
 	"scripts": {
 		"start": "node main.mjs"
 	},
+	"bin": {
+		"outlook-parser": "./main.mjs"
+	},
 	"repository": {
+		"type": "git",
 		"url": "https://github.com/xuantri2000/PSTExtractor.git"
 	},
+	"keywords": [
+		"PST",
+		"parser",
+		"Outlook",
+		"email"
+	],
+	"author": "Xuan Tri",
+	"license": "MIT",
 	"dependencies": {
 		"minimist": "^1.2.8"
 	}

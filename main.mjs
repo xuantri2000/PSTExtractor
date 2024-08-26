@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import * as PST from "./src/index.js";
 import fs from "fs";
 import path from "path";
@@ -27,7 +29,7 @@ process.exit(0);
 const shouldRemove = args['rm'] !== undefined;
 const shouldRetry = args['rt'] !== undefined;
 const testFolder = args['dir'] !== undefined && !shouldRetry ? args['dir'] : 'PSTFolder';
-const baseFolder = "./main";
+const baseFolder = "./";
 const PSTFolder = testFolder ? path.join(baseFolder, testFolder) : path.join(baseFolder, "PSTFolder");
 const PSTOutput = path.join(baseFolder, "PSTOutput");
 const ErrorLog = path.join(baseFolder, "ErrorLog");

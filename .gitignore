@@ -129,6 +129,7 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-main/PSTOutput
-main/ErrorLog
+/PSTOutput
+/ErrorLog
+/PSTFolder
 *.pst

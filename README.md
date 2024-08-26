@@ -10,16 +10,11 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
    node -v
    npm -v
 - Nếu chưa có git thì tải tại [Git Offical Website](https://git-scm.com/downloads).
-2. Clone source về máy bằng lệnh:
+2. Install package global để có thể dùng ở bất cứ đâu
    ```bash
-   git clone https://github.com/xuantri2000/PSTExtractor.git
-
-3. Khởi tạo package:
-     ```bash
-   npm install
+   npm install -g outlook-parser
 
 ## Chạy file JS
-0. Log sẽ được tạo ra trong thư mục /main.
 1. Copy toàn bộ file PST vào thư mục **PSTFolder**. Toàn bộ output sẽ được lưu vào thư mục **PSTOutput**.
 2. Tham số:
 - **--dir=<đường dẫn đọc file PST>** (mặc định là PSTFolder)
@@ -30,27 +25,27 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
 3. Mở Command Prompt (CMD) và chạy lệnh:
 
    ```bash
-   npm start
+   outlook-parser
 - Câu lệnh này sẽ đọc file PST ở thư mục **PSTFolder**, không xóa log cũ ở **PSTOutput**.
 - Nếu chỉ cần test 1 hoặc 2 file .pst (trong trường hợp file bị lỗi), copy chúng vào một thư mục cùng cấp và chạy lệnh:
 
    ```bash
-   npm start -- --dir=<thư mục vừa tạo>
+   outlook-parser --dir=<thư mục vừa tạo>
 
 - Ví dụ, khi cần test file abc.pst, tạo một thư mục tên test và copy file đó vào, sau đó chạy lệnh:
 
    ```bash
-   npm start -- --dir=test
+   outlook-parser --dir=test
    
 - Trường hợp muốn đọc pst ở folder test xóa đi log ở PSTOutput:
    ```bash
-   npm start -- --dir=test --rm
+   outlook-parser --dir=test --rm
 - Trường hợp muốn retry những file đã bị lỗi trước đó ở ErrorLog:
    ```bash
-   npm start -- --rt
+   outlook-parser --rt
 - Khi chạy đủ 3 arguments như câu lệnh dưới đây, 2 argument --dir và --rm sẽ bị vô hiệu hóa và đọc giá trị mặc định để tiến hành retry ở folder **ErrorLog**:
   ```bash
-  npm start -- --dir=test --rm --rt
+  outlook-parser --dir=test --rm --rt
 
 3. Trong PSTOutput có:
 - File ghi lại toàn bộ nội dung của tệp PST.
