@@ -18,7 +18,7 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
 1. Tạo thư mục **PSTFolder** tại vị trí muốn chạy cmd, copy toàn bộ file PST vào thư mục **PSTFolder**. Toàn bộ output sẽ được lưu vào thư mục **PSTOutput**.
 2. Tham số:
 - **--dir=<đường dẫn đọc file PST>** (mặc định là PSTFolder)
-- **--rm** (cờ để xóa PSTOutput trước khi chạy, mặc định là false)`
+- **--rm** (cờ để xóa PSTOutput, ErrorLog trước khi chạy, mặc định là false)`
 - **--rt** (cờ để chạy lại những file PST đã lỗi trước đó trong folder **ErrorLog**, mặc định là false. Khi cờ này được bật, **--dir** sẽ đọc mặc định ở **PSTFolder**, **--rm** sẽ là false)
 - **--help** (cờ để mở hướng dẫn sử dụng)
 3. Mở Command Prompt (CMD) và chạy lệnh:
@@ -52,10 +52,9 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
 - File ghi lại toàn bộ nội dung của tệp PST.
 - Folder MailContents chứa nội dung của toàn bộ email đã gửi và nhận, thư rác, thư nháp,...
 - Folder Attachments chứa toàn bộ tệp đính kèm từ email. Vì một số lý do liên quan đến encode, nên file .word, .pptx mở lên bị lỗi encode cần phải xác nhận OK để bật.
-
-5. Thư mục ErrorLog sẽ bị truncate trước khi chạy và ghi log những file xuất hiện lỗi.
-6. Trường hợp muốn phát triển thêm chức năng, tham khảo file test.js hoặc đọc file JS core trong folder ./src.
+5. Trường hợp muốn phát triển thêm chức năng, tham khảo file test.js hoặc đọc file JS core trong folder ./src.
 - Logic chỉnh sửa chủ yếu là từ PSTInternal.js.
 - XXBlock bao gồm nhiều tập hợp XBlock, XBlock bao gồm nhiều DataBlock, Datablock chính là class chứa thông tin của Mail, XXBlock thường xuất hiện ở các file lớn.
 - SubnodeIntermediateBlock bao gồm nhiều tập hợp SubnodeLeafBlock, logic #getSubNodeAccessor(bidSub) getSubEntry được chỉnh sửa để bổ sung thêm 1 vòng lặp lớn tìm kiếm internalNid.
+
 ![image](https://github.com/user-attachments/assets/5be86904-531b-49af-873b-a018e07a53d3)
