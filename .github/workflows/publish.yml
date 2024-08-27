@@ -24,13 +24,6 @@ jobs:
       - name: Authenticate with npm
         run: npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
 
-      - name: Check for code changes
-        run: |
-          if git diff --quiet HEAD~1 HEAD -- '*.js' '*.mjs' '*.ts'; then
-            echo "No code changes detected, skipping publish."
-            exit 0
-          fi
-
       - name: Publish package
         # run: npm whoami
         env:
