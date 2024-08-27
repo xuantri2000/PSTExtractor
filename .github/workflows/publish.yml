@@ -3,7 +3,7 @@ name: Publish to npm
 on:
   push:
     branches:
-      - main  # Hoặc nhánh chính của bạn
+      - main
 
 jobs:
   publish:
@@ -11,19 +11,19 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3  # Cập nhật lên phiên bản mới nhất nếu cần
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'  # Cập nhật lên Node.js 20 để tương thích
+          node-version: '20'
           
       - name: Install dependencies
         run: npm install
 
       - name: Publish package
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}  # Sử dụng token từ GitHub Secrets
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          npm version patch  # Cập nhật số phiên bản
+          npm version patch
           npm publish --access public
