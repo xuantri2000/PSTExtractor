@@ -32,7 +32,7 @@ const baseFolder = "./";
 const PSTFolder = testFolder ? path.join(baseFolder, testFolder) : path.join(baseFolder, "PSTFolder");
 const PSTOutput = path.join(baseFolder, "PSTOutput");
 const ErrorLog = path.join(baseFolder, "ErrorLog");
-// const useLargeFileMode = args['lg'] !== undefined;
+const useLargeFileMode = args['lg'] !== undefined;
 
 // Đảm bảo các thư mục cần thiết tồn tại
 if (shouldRemove && !shouldRetry) {
