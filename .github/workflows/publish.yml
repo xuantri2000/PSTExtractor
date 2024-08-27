@@ -25,9 +25,9 @@ jobs:
         run: npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
 
       - name: Publish package
-        run: npm whoami
+        # run: npm whoami
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        # run: |
-        #   npm version patch --no-git-tag-version
-        #   npm publish --access public
+        run: |
+          npm version patch --no-git-tag-version
+          npm publish --access public
