@@ -20,7 +20,6 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
 - **--dir=<đường dẫn đọc file PST>** (mặc định là PSTFolder)
 - **--rm** (cờ để xóa PSTOutput trước khi chạy, mặc định là false)`
 - **--rt** (cờ để chạy lại những file PST đã lỗi trước đó trong folder **ErrorLog**, mặc định là false. Khi cờ này được bật, **--dir** sẽ đọc mặc định ở **PSTFolder**, **--rm** sẽ là false)
-<!-- - **--lg** (cờ để chạy với mode đọc file lớn hơn 3GB theo Stream, thời gian sẽ lâu hơn bình thường, nên dùng chung với cờ --rt để target vào các file lỗi) -->
 - **--help** (cờ để mở hướng dẫn sử dụng)
 3. Mở Command Prompt (CMD) và chạy lệnh:
 
