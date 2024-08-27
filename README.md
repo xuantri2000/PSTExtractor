@@ -22,7 +22,6 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
 - **--rt** (cờ để chạy lại những file PST đã lỗi trước đó trong folder **ErrorLog**, mặc định là false. Khi cờ này được bật, **--dir** sẽ đọc mặc định ở **PSTFolder**, **--rm** sẽ là false)
 - **--help** (cờ để mở hướng dẫn sử dụng)
 3. Mở Command Prompt (CMD) và chạy lệnh:
-
    ```bash
    outlook-parser
 - Câu lệnh này sẽ đọc file PST ở thư mục **PSTFolder**, không xóa log cũ ở **PSTOutput**.
