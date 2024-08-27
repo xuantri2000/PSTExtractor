@@ -14,7 +14,7 @@ Sử dụng để đọc hàng loạt file Outlook PST và lấy ra tệp đính
    ```bash
    npm install -g outlook-parser
 
-## Chạy file JS
+## Chạy package
 1. Tạo thư mục **PSTFolder** tại vị trí muốn chạy cmd, copy toàn bộ file PST vào thư mục **PSTFolder**. Toàn bộ output sẽ được lưu vào thư mục **PSTOutput**.
 2. Tham số:
 - **--dir=<đường dẫn đọc file PST>** (mặc định là PSTFolder)
