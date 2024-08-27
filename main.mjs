@@ -243,13 +243,7 @@ function printFolderTree(pst, nid, depth, attachmentsFolder, mailContentsFolder)
 			// Recursively print subfolders
 			const subfolders = folder.getSubFolderEntries();
 			for (const sf of subfolders) {
-				// try {
-					output += printFolderTree(pst, sf.nid, depth + 1, attachmentsFolder, mailContentsFolder);
-				// } catch (e) {
-				//	 output += `${" |  ".repeat(depth + 1)}- Error processing subfolder: ${e.message}\n`;
-				//	 console.warn(`Error processing subfolder with NID ${sf.nid}: ${e.message}`);
-				//	 continue;
-				// }
+				output += printFolderTree(pst, sf.nid, depth + 1, attachmentsFolder, mailContentsFolder);
 			}
 		}
 	// } catch (e) {
