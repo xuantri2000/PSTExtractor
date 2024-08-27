@@ -21,7 +21,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Authenticate with npm
+        run: npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
+
       - name: Publish package
+        run: npm whoami
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
