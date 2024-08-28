@@ -21,6 +21,7 @@ Lưu ý: Chỉ đọc được những file nhỏ hơn 4GB, nếu file lớn hơ
 - **--dir=<đường dẫn đọc file PST>** (mặc định là PSTFolder)
 - **--rm** (cờ để xóa PSTOutput, ErrorLog trước khi chạy, mặc định là false)`
 - **--rt** (cờ để chạy lại những file PST đã lỗi trước đó trong folder **ErrorLog**, mặc định là false. Khi cờ này được bật, **--dir** sẽ đọc mặc định ở **PSTFolder**, **--rm** sẽ là false)
+- **--ct** (cờ để đếm số lượng file theo định dạng trogn folder **PSTOutput** sau khi chạy để thống kê)
 - **--help** (cờ để mở hướng dẫn sử dụng)
 3. Mở Command Prompt (CMD) và chạy lệnh:
    ```bash

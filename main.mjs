@@ -5,6 +5,7 @@ import fs from "fs";
 import path from "path";
 import minimist from "minimist";
 import { promisify } from "util";
+import { countFilesByExtension } from "./src/count.mjs";
 
 const open = promisify(fs.open);
 const read = promisify(fs.read);
@@ -21,10 +22,12 @@ Hướng dẫn sử dụng:
 --dir=<tên folder>: Đọc folder PST được chỉ định thay vì PSTFolder
 --rt: Thử lại các file bị lỗi trong folder ErrorLog, mặc định là false
 	Lưu ý: cờ này không thể dùng chung với cờ --dir và --rm
+--ct: Đếm file theo định dạng
 ---------------------------------------------------------
 	`);
 process.exit(0);
 }
+
 const shouldRemove = args['rm'] !== undefined;
 const shouldRetry = args['rt'] !== undefined;
 const testFolder = args['dir'] !== undefined && !shouldRetry ? args['dir'] : 'PSTFolder';
@@ -33,6 +36,12 @@ const PSTFolder = testFolder ? path.join(baseFolder, testFolder) : path.join(bas
 const PSTOutput = path.join(baseFolder, "PSTOutput");
 const ErrorLog = path.join(baseFolder, "ErrorLog");
 const useLargeFileMode = args['lg'] !== undefined;
+
+//Đếm file theo định dạng
+if (args['ct'] !== undefined) {
+	countFilesByExtension(PSTOutput);
+	process.exit(0);
+}
 
 // Đảm bảo các thư mục cần thiết tồn tại
 if (shouldRemove && !shouldRetry) {
