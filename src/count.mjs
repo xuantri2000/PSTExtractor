@@ -3,6 +3,7 @@ import path from "path";
 
 export async function countFilesByExtension(rootFolder) {
     const totalFileCounts = {};
+    const folderResults = [];
 
     function countFilesInAttachments(folderPath) {
         const fileCounts = {};
@@ -25,6 +26,28 @@ export async function countFilesByExtension(rootFolder) {
         return fileCounts;
     }
 
+    function findAndCountAttachments(folder) {
+        const items = fs.readdirSync(folder);
+
+        for (const item of items) {
+            const itemPath = path.join(folder, item);
+            const stats = fs.statSync(itemPath);
+
+            if (stats.isDirectory()) {
+                if (item === 'Attachments') {
+                    const parentFolderName = path.basename(folder);
+                    const attachmentCounts = countFilesInAttachments(itemPath);
+                    folderResults.push({
+                        folderName: parentFolderName,
+                        counts: attachmentCounts
+                    });
+                } else {
+                    findAndCountAttachments(itemPath);
+                }
+            }
+        }
+    }
+
     const analysFolderPath = path.join("./", "Analys");
 
     if (fs.existsSync(analysFolderPath)) {
@@ -33,27 +56,23 @@ export async function countFilesByExtension(rootFolder) {
 
     fs.mkdirSync(analysFolderPath, { recursive: true });
 
-    const folders = fs.readdirSync(rootFolder).filter(folder => {
-        const attachmentsPath = path.join(rootFolder, folder, 'attachments');
-        return fs.existsSync(attachmentsPath) && fs.statSync(attachmentsPath).isDirectory();
-    });
+    findAndCountAttachments(rootFolder);
 
     let fileCounter = 1;
 
-    for (const folder of folders) {
-        const attachmentsPath = path.join(rootFolder, folder, 'attachments');
-        const folderCounts = countFilesInAttachments(attachmentsPath);
-
-        const folderSummary = Object.entries(folderCounts)
+    // Ghi kết quả cho từng thư mục con chứa attachments
+    for (const result of folderResults) {
+        const folderSummary = Object.entries(result.counts)
             .sort(([extA], [extB]) => extA.localeCompare(extB))
             .map(([extension, count]) => `Định dạng ${extension}: ${count} files`)
             .join('\n');
 
-        const fileName = `${fileCounter}. ${folder}.txt`;
+        const fileName = `${fileCounter}. ${result.folderName}.txt`;
         fs.writeFileSync(path.join(analysFolderPath, fileName), folderSummary, { flag: 'w' });
         fileCounter++;
     }
 
+    // Ghi tổng kết chung
     const totalSummary = Object.entries(totalFileCounts)
         .sort(([extA], [extB]) => extA.localeCompare(extB))
         .map(([extension, count]) => `Định dạng ${extension}: ${count} files`)
