@@ -26,7 +26,7 @@ export async function countFilesByExtension(rootFolder) {
         return fileCounts;
     }
 
-    function findAndCountAttachments(folder) {
+    function findAndCountAttachments(folder, parentFolders = []) {
         const items = fs.readdirSync(folder);
 
         for (const item of items) {
@@ -34,15 +34,16 @@ export async function countFilesByExtension(rootFolder) {
             const stats = fs.statSync(itemPath);
 
             if (stats.isDirectory()) {
+                const newParentFolders = [...parentFolders, item];
                 if (item === 'Attachments') {
-                    const parentFolderName = path.basename(folder);
                     const attachmentCounts = countFilesInAttachments(itemPath);
                     folderResults.push({
-                        folderName: parentFolderName,
+                        folderName: parentFolders[parentFolders.length - 1],
+                        parentFolders: parentFolders.slice(0, -1),
                         counts: attachmentCounts
                     });
                 } else {
-                    findAndCountAttachments(itemPath);
+                    findAndCountAttachments(itemPath, newParentFolders);
                 }
             }
         }
@@ -65,16 +66,25 @@ export async function countFilesByExtension(rootFolder) {
         const folderSummary = Object.entries(result.counts)
             .sort(([extA], [extB]) => extA.localeCompare(extB))
             .map(([extension, count]) => {
-				if (extension === '') {
-					return `Không có định dạng: ${count} files`;
-				} else {
-					return `Định dạng ${extension}: ${count} files`;
-				}
-			})
+                if (extension === '') {
+                    return `Không có định dạng: ${count} files`;
+                } else {
+                    return `Định dạng ${extension}: ${count} files`;
+                }
+            })
             .join('\n');
 
-        const fileName = `${fileCounter}. ${result.folderName}.txt`;
-        fs.writeFileSync(path.join(reportFolderPath, fileName), folderSummary, { flag: 'w' });
+        const folderPath = path.join(reportFolderPath, ...result.parentFolders);
+        fs.mkdirSync(folderPath, { recursive: true });
+
+        let fileName;
+        if (result.parentFolders.length > 1) {
+            fileName = `${fileCounter}. ${result.parentFolders[result.parentFolders.length - 1]} ${result.folderName}.txt`;
+        } else {
+            fileName = `${fileCounter}. ${result.folderName}.txt`;
+        }
+
+        fs.writeFileSync(path.join(folderPath, fileName), folderSummary, { flag: 'w' });
         fileCounter++;
     }
 
@@ -82,12 +92,12 @@ export async function countFilesByExtension(rootFolder) {
     const totalSummary = Object.entries(totalFileCounts)
         .sort(([extA], [extB]) => extA.localeCompare(extB))
         .map(([extension, count]) => {
-			if (extension === '') {
-				return `Không có định dạng: ${count} files`;
-			} else {
-				return `Định dạng ${extension}: ${count} files`;
-			}
-		})
+            if (extension === '') {
+                return `Không có định dạng: ${count} files`;
+            } else {
+                return `Định dạng ${extension}: ${count} files`;
+            }
+        })
         .join('\n');
 
     const summaryFileName = `${fileCounter}. Summary.txt`;
