@@ -3,10 +3,12 @@ import path from "path";
 
 export async function countFilesByExtension(rootFolder) {
     const totalFileCounts = {};
+    const totalFileSizes = {};
     const folderResults = [];
 
     function countFilesInAttachments(folderPath) {
         const fileCounts = {};
+        const fileSizes = {};
         const files = fs.readdirSync(folderPath);
         files.forEach(file => {
             const filePath = path.join(folderPath, file);
@@ -16,14 +18,21 @@ export async function countFilesByExtension(rootFolder) {
                 const extension = path.extname(file).toLowerCase();
                 fileCounts[extension] = (fileCounts[extension] || 0) + 1;
                 totalFileCounts[extension] = (totalFileCounts[extension] || 0) + 1;
+
+                const size = stats.size;
+                fileSizes[extension] = (fileSizes[extension] || 0) + size;
+                totalFileSizes[extension] = (totalFileSizes[extension] || 0) + size;
             } else if (stats.isDirectory()) {
                 const subCounts = countFilesInAttachments(filePath);
-                Object.entries(subCounts).forEach(([ext, count]) => {
+                Object.entries(subCounts.counts).forEach(([ext, count]) => {
                     fileCounts[ext] = (fileCounts[ext] || 0) + count;
+                });
+                Object.entries(subCounts.sizes).forEach(([ext, size]) => {
+                    fileSizes[ext] = (fileSizes[ext] || 0) + size;
                 });
             }
         });
-        return fileCounts;
+        return { counts: fileCounts, sizes: fileSizes };
     }
 
     function findAndCountAttachments(folder, parentFolders = []) {
@@ -40,7 +49,8 @@ export async function countFilesByExtension(rootFolder) {
                     folderResults.push({
                         folderName: parentFolders[parentFolders.length - 1],
                         parentFolders: parentFolders.slice(0, -1),
-                        counts: attachmentCounts
+                        counts: attachmentCounts.counts,
+                        sizes: attachmentCounts.sizes
                     });
                 } else {
                     findAndCountAttachments(itemPath, newParentFolders);
@@ -66,10 +76,12 @@ export async function countFilesByExtension(rootFolder) {
         const folderSummary = Object.entries(result.counts)
             .sort(([extA], [extB]) => extA.localeCompare(extB))
             .map(([extension, count]) => {
+                const size = result.sizes[extension] || 0;
+                const formattedSize = (size / (1024 * 1024)).toFixed(2); // Convert to MB
                 if (extension === '') {
-                    return `Không có định dạng: ${count} files`;
+                    return `Không có định dạng: ${count} files, size: ${formattedSize} MB`;
                 } else {
-                    return `Định dạng ${extension}: ${count} files`;
+                    return `Định dạng ${extension}: ${count} files, size: ${formattedSize} MB`;
                 }
             })
             .join('\n');
@@ -92,10 +104,12 @@ export async function countFilesByExtension(rootFolder) {
     const totalSummary = Object.entries(totalFileCounts)
         .sort(([extA], [extB]) => extA.localeCompare(extB))
         .map(([extension, count]) => {
+            const size = totalFileSizes[extension] || 0;
+            const formattedSize = (size / (1024 * 1024)).toFixed(2); // Convert to MB
             if (extension === '') {
-                return `Không có định dạng: ${count} files`;
+                return `Không có định dạng: ${count} files, size: ${formattedSize} MB`;
             } else {
-                return `Định dạng ${extension}: ${count} files`;
+                return `Định dạng ${extension}: ${count} files, size: ${formattedSize} MB`;
             }
         })
         .join('\n');
