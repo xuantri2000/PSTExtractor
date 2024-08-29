@@ -49,6 +49,9 @@ Lưu ý: Chỉ đọc được những file nhỏ hơn 4GB, nếu file lớn hơ
 - Khi chạy đủ 3 arguments như câu lệnh dưới đây, 2 argument --dir và --rm sẽ bị vô hiệu hóa và đọc giá trị mặc định để tiến hành retry ở folder **ErrorLog**:
   ```bash
   outlook-parser --dir=test --rm --rt
+- Khi chạy xong quá trình phân tích file PST và đã có data ở **PSTOutput**, dùng argument --ct để đếm file theo định dạng, sau khi chạy log sẽ ghi vào folder **Reports**:
+  ```bash
+  outlook-parser --ct
 
 4. Trong PSTOutput có:
 - File ghi lại toàn bộ nội dung của tệp PST.
