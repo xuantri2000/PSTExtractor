@@ -90,11 +90,11 @@ export async function countFilesByExtension(rootFolder) {
         fs.mkdirSync(folderPath, { recursive: true });
 
         let fileName;
-        if (result.parentFolders.length > 1) {
-            fileName = `${fileCounter}. ${result.parentFolders[result.parentFolders.length - 1]} ${result.folderName}.txt`;
-        } else {
+        // if (result.parentFolders.length > 1) {
+        //     fileName = `${fileCounter}. ${result.parentFolders[result.parentFolders.length - 1]} ${result.folderName}.txt`;
+        // } else {
             fileName = `${fileCounter}. ${result.folderName}.txt`;
-        }
+        // }
 
         fs.writeFileSync(path.join(folderPath, fileName), folderSummary, { flag: 'w' });
         fileCounter++;
