@@ -48,13 +48,13 @@ export async function countFilesByExtension(rootFolder) {
         }
     }
 
-    const analysFolderPath = path.join("./", "Analys");
+    const reportFolderPath = path.join("./", "Reports");
 
-    if (fs.existsSync(analysFolderPath)) {
-        fs.rmSync(analysFolderPath, { recursive: true, force: true });
+    if (fs.existsSync(reportFolderPath)) {
+        fs.rmSync(reportFolderPath, { recursive: true, force: true });
     }
 
-    fs.mkdirSync(analysFolderPath, { recursive: true });
+    fs.mkdirSync(reportFolderPath, { recursive: true });
 
     findAndCountAttachments(rootFolder);
 
@@ -64,21 +64,33 @@ export async function countFilesByExtension(rootFolder) {
     for (const result of folderResults) {
         const folderSummary = Object.entries(result.counts)
             .sort(([extA], [extB]) => extA.localeCompare(extB))
-            .map(([extension, count]) => `Định dạng ${extension}: ${count} files`)
+            .map(([extension, count]) => {
+				if (extension === '') {
+					return `Không có định dạng: ${count} files`;
+				} else {
+					return `Định dạng ${extension}: ${count} files`;
+				}
+			})
             .join('\n');
 
         const fileName = `${fileCounter}. ${result.folderName}.txt`;
-        fs.writeFileSync(path.join(analysFolderPath, fileName), folderSummary, { flag: 'w' });
+        fs.writeFileSync(path.join(reportFolderPath, fileName), folderSummary, { flag: 'w' });
         fileCounter++;
     }
 
     // Ghi tổng kết chung
     const totalSummary = Object.entries(totalFileCounts)
         .sort(([extA], [extB]) => extA.localeCompare(extB))
-        .map(([extension, count]) => `Định dạng ${extension}: ${count} files`)
+        .map(([extension, count]) => {
+			if (extension === '') {
+				return `Không có định dạng: ${count} files`;
+			} else {
+				return `Định dạng ${extension}: ${count} files`;
+			}
+		})
         .join('\n');
 
     const summaryFileName = `${fileCounter}. Summary.txt`;
-    fs.writeFileSync(path.join(analysFolderPath, summaryFileName), totalSummary, { flag: 'w' });
-    console.log("Kết quả đã được ghi vào thư mục Analys.");
+    fs.writeFileSync(path.join(reportFolderPath, summaryFileName), totalSummary, { flag: 'w' });
+    console.log("Kết quả đã được ghi vào thư mục Reports.");
 }
